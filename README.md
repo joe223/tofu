@@ -1,6 +1,7 @@
 Creates a compact font that renders all the things as *tofu*.
 
 ```bash
+$ python3 tofu.py
 $ ttx -l tofu.ttf
 Listing table info for "tofu.ttf":
     tag     checksum    length    offset
