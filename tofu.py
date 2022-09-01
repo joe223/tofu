@@ -1,3 +1,8 @@
+""" Make a font with a "tofu" .notdef glyph
+
+Ref https://github.com/fonttools/fonttools/blob/main/Lib/fontTools/fontBuilder.py
+"""
+
 from fontTools.fontBuilder import FontBuilder
 from fontTools.pens.ttGlyphPen import TTGlyphPen
 from fontTools.ttLib import TTFont, newTable, getTableModule
@@ -7,53 +12,81 @@ from fontTools.ttLib.tables import otTables as ot
 from fontTools.ttLib.tables._g_l_y_f import Glyph
 
 
-# Make a font with a "tofu" .notdef glyph
-# Ref https://github.com/fonttools/fonttools/blob/main/Lib/fontTools/fontBuilder.py
+class Rectangle:
+  def __init__(self, top, right, bottom, left):
+      self.top = top
+      self.right = right
+      self.bottom = bottom
+      self.left = left
+
+
+FAMILY_NAME = 'Tofu'
+STYLE_NAME = 'Regular'
+VERSION = '0.1'
+GLYPH_NAME = 'tofu'
+
+ADVANCE_WIDTH = 600
+BASELINE = 0
+CAP_HEIGHT = 800
+ASCENDER_Y = 1000
+DESCENDER_Y = -200
+
+STROKE_WIDTH = 50
+PADDING = 50
+TOFU_OUTER_RECT = Rectangle(
+  top=CAP_HEIGHT,
+  right=ADVANCE_WIDTH-PADDING,
+  bottom=BASELINE,
+  left=PADDING)
+TOFU_INNER_RECT = Rectangle(
+  top=CAP_HEIGHT-STROKE_WIDTH,
+  right=ADVANCE_WIDTH-PADDING-STROKE_WIDTH,
+  bottom=BASELINE+STROKE_WIDTH,
+  left=PADDING+STROKE_WIDTH)
 
 def drawTofuGlyph(strokeWidth = 50) -> Glyph:
     pen = TTGlyphPen(None)
-    pen.moveTo((100, 100))
-    pen.lineTo((100, 1000))
-    pen.lineTo((500, 1000))
-    pen.lineTo((500, 100))
-    pen.closePath()
-    pen.moveTo((100+strokeWidth, 100+strokeWidth))
-    pen.lineTo((100+strokeWidth, 1000-strokeWidth))
-    pen.lineTo((500-strokeWidth, 1000-strokeWidth))
-    pen.lineTo((500-strokeWidth, 100+strokeWidth))
+    # Draw outer rectangle starting from bottom-left clockwise
+    pen.moveTo((TOFU_OUTER_RECT.left, TOFU_OUTER_RECT.bottom))
+    pen.lineTo((TOFU_OUTER_RECT.left, TOFU_OUTER_RECT.top))
+    pen.lineTo((TOFU_OUTER_RECT.right, TOFU_OUTER_RECT.top))
+    pen.lineTo((TOFU_OUTER_RECT.right, TOFU_OUTER_RECT.bottom))
+    pen.lineTo((TOFU_OUTER_RECT.left, TOFU_OUTER_RECT.bottom))
+    # Draw inner rectangle starting from bottom-left counter-clockwise
+    pen.lineTo((TOFU_INNER_RECT.left, TOFU_INNER_RECT.bottom))
+    pen.lineTo((TOFU_INNER_RECT.right, TOFU_INNER_RECT.bottom))
+    pen.lineTo((TOFU_INNER_RECT.right, TOFU_INNER_RECT.top))
+    pen.lineTo((TOFU_INNER_RECT.left, TOFU_INNER_RECT.top))
+    pen.lineTo((TOFU_INNER_RECT.left, TOFU_INNER_RECT.bottom))
     pen.closePath()
     return pen.glyph()
 
 fb = FontBuilder(1024, isTTF=True)
 
-glyph_order = ['.notdef', 'tofu']
+glyph_order = ['.notdef', GLYPH_NAME]
 fb.setupGlyphOrder(glyph_order)
-advanceWidths = {n: 600 for n in glyph_order}
-familyName = 'Tofu'
-styleName = 'Regular'
-version = '0.1'
 nameStrings = dict(
-    familyName=dict(en=familyName),
-    styleName=dict(en=styleName),
-    uniqueFontIdentifier='fontBuilder: ' + familyName + '.' + styleName,
-    fullName=familyName + '-' + styleName,
-    psName=familyName + '-' + styleName,
-    version='Version ' + version,
+    familyName=dict(en=FAMILY_NAME),
+    styleName=dict(en=STYLE_NAME),
+    uniqueFontIdentifier='fontBuilder: ' + FAMILY_NAME + '.' + STYLE_NAME,
+    fullName=FAMILY_NAME + '-' + STYLE_NAME,
+    psName=FAMILY_NAME + '-' + STYLE_NAME,
+    version='Version ' + VERSION,
 )
 
-glyphs = {'.notdef': TTGlyphPen(None).glyph(), 'tofu': drawTofuGlyph()}
+glyphs = {'.notdef': TTGlyphPen(None).glyph(), GLYPH_NAME: drawTofuGlyph()}
 fb.setupGlyf(glyphs)
 
 metrics = {}
 glyphTable = fb.font['glyf']
-for gn, advanceWidth in advanceWidths.items():
-    metrics[gn] = (advanceWidth, glyphTable[gn].xMin)
+for name in glyph_order:
+    metrics[name] = (ADVANCE_WIDTH, glyphTable[name].xMin)
 
 fb.setupHorizontalMetrics(metrics)
-fb.setupHorizontalHeader(ascent=824, descent=-200)
+fb.setupHorizontalHeader(ascent=ASCENDER_Y, descent=DESCENDER_Y)
 
 # OTS is unhappy if we *only* have format 13
-fb.setupCharacterMap({1: 'tofu'})
+fb.setupCharacterMap({1: GLYPH_NAME})
 
 # format 13: many to one
 # https://docs.microsoft.com/en-us/typography/opentype/spec/cmap#format-13-many-to-one-range-mappings
@@ -63,12 +96,12 @@ cmap_many_to_one = cmap_classes[13](13)
 cmap_many_to_one.platformID = 3
 cmap_many_to_one.platEncID = 10
 cmap_many_to_one.language = 0
-cmap_many_to_one.cmap = {cp: 'tofu' for cp in range(0x10FFFF + 1) if cp > 1}
+cmap_many_to_one.cmap = {cp: GLYPH_NAME for cp in range(0x10FFFF + 1) if cp > 1}
 
 fb.font['cmap'].tables.append(cmap_many_to_one)
 
 fb.setupNameTable(nameStrings)
-fb.setupOS2(sTypoAscender=824, usWinAscent=824, usWinDescent=200)
+fb.setupOS2(sTypoAscender=ASCENDER_Y, usWinAscent=ASCENDER_Y, usWinDescent=abs(DESCENDER_Y))
 fb.setupPost(keepGlyphNames=False)
 
-fb.save('tofu.ttf')
+fb.save(FAMILY_NAME.lower() + '.ttf')
