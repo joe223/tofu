@@ -5,10 +5,7 @@ Ref https://github.com/fonttools/fonttools/blob/main/Lib/fontTools/fontBuilder.p
 
 from fontTools.fontBuilder import FontBuilder
 from fontTools.pens.ttGlyphPen import TTGlyphPen
-from fontTools.ttLib import TTFont, newTable, getTableModule
 from fontTools.ttLib.tables._c_m_a_p import cmap_classes
-from fontTools.colorLib import builder
-from fontTools.ttLib.tables import otTables as ot
 from fontTools.ttLib.tables._g_l_y_f import Glyph
 
 
