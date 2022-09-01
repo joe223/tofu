@@ -2,13 +2,14 @@
 <html>
 <head>
 	<title>Tofu</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lobster&text=ABC ">
 	<style>
 		@font-face {
-			font-family:  "Tofu";
+			font-family: "Tofu";
 			src:  url("tofu.ttf");
 		}
-		.tofu {
-			font-family: "Tofu";
+		.tofu-fallback {
+			font-family: "Lobster", "Tofu";
 		}
 		body {
 			font-size:  36pt;
@@ -16,7 +17,7 @@
 	</style>
 </head>
 <body>
-	<p>Hello, World</p>
-	<p class="tofu">Hello, World</p>
+	<p>ABC 123</p>
+	<p class="tofu-fallback">ABC 123</p>
 </body>
 </html>
