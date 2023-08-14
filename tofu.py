@@ -96,7 +96,7 @@ def createTtf() -> str:
   cmap_many_to_one.platformID = 3
   cmap_many_to_one.platEncID = 10
   cmap_many_to_one.language = 0
-  cmap_many_to_one.cmap = {cp: GLYPH_NAME for cp in range(0x10FFFF + 1) if cp > 1}
+  cmap_many_to_one.cmap = {cp: GLYPH_NAME for cp in range(0x10FFFF + 1) if cp > 1 and cp != 0xFE0F}
 
   fb.font['cmap'].tables.append(cmap_many_to_one)
 
