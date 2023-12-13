@@ -1,4 +1,6 @@
-Creates a compact font that renders all the things as *tofu*.
+# Google Fonts' Tofu Font
+
+Creates a compact font that renders all the things as *tofu*, inspired by [github.com/adobe-fonts/adobe-notdef](https://github.com/adobe-fonts/adobe-notdef) which explains the whole thing better.
 
 ```bash
 $ python3 tofu.py
